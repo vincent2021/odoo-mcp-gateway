@@ -154,9 +154,7 @@ async def test_button_appears_iff_provider_discovered(vault: InMemoryVault) -> N
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(transport=transport, base_url="http://gateway") as http:
             client_id = await register(http)
-            page = await http.get(
-                "/authorize", params=authorize_params(client_id, pkce_pair()[1])
-            )
+            page = await http.get("/authorize", params=authorize_params(client_id, pkce_pair()[1]))
             assert page.status_code == 200
             assert (MS_BUTTON in page.text) is expected
             assert ("/oauth/microsoft/start" in page.text) is expected
@@ -167,9 +165,7 @@ async def test_no_sso_configured_keeps_legacy_behavior(vault: InMemoryVault) -> 
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://gateway") as http:
         client_id = await register(http)
-        page = await http.get(
-            "/authorize", params=authorize_params(client_id, pkce_pair()[1])
-        )
+        page = await http.get("/authorize", params=authorize_params(client_id, pkce_pair()[1]))
         assert MS_BUTTON not in page.text
         start = await http.get(
             "/oauth/microsoft/start", params=authorize_params(client_id, pkce_pair()[1])
@@ -256,9 +252,7 @@ async def test_full_sso_flow_yields_odoo_session(
     assert session is not None
     assert session.auth_method == "odoo_session"
     assert session.credential.get_secret_value() == SESSION_COOKIE_SENTINEL
-    assert session.identity == UserIdentity(
-        login="sso@x.com", uid=42, display_name="SSO User"
-    )
+    assert session.identity == UserIdentity(login="sso@x.com", uid=42, display_name="SSO User")
 
     # Rule 1 #7: neither the Microsoft token nor the session cookie in any log.
     for record in caplog.records:
@@ -414,9 +408,7 @@ async def test_host_allowlist_applies_to_sso_endpoints(vault: InMemoryVault) -> 
         vault,
         stub_validator,
         providers=[
-            MicrosoftLoginProvider(
-                MicrosoftSso(discover=stub_discover, exchange=stub_exchange)
-            )
+            MicrosoftLoginProvider(MicrosoftSso(discover=stub_discover, exchange=stub_exchange))
         ],
         allowed_hosts=frozenset({"gateway"}),
     )
@@ -424,9 +416,7 @@ async def test_host_allowlist_applies_to_sso_endpoints(vault: InMemoryVault) -> 
     async with httpx.AsyncClient(transport=transport, base_url="http://gateway") as http:
         ok = await http.get("/oauth/microsoft/callback")
         assert ok.status_code == 200
-        rebound = await http.get(
-            "/oauth/microsoft/callback", headers={"Host": "evil.example"}
-        )
+        rebound = await http.get("/oauth/microsoft/callback", headers={"Host": "evil.example"})
         assert rebound.status_code == 421
 
 

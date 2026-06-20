@@ -156,11 +156,7 @@ class MicrosoftLoginProvider:
 
     def _login_url(self, params: dict[str, str]) -> str:
         """The /oauth/microsoft/start link carrying the pending authorize params."""
-        keep = {
-            name: params[name]
-            for name in _AUTHORIZE_PARAM_NAMES
-            if params.get(name)
-        }
+        keep = {name: params[name] for name in _AUTHORIZE_PARAM_NAMES if params.get(name)}
         return f"/oauth/microsoft/start?{urlencode(keep)}"
 
     # -- provider discovery --------------------------------------------------
@@ -172,9 +168,7 @@ class MicrosoftLoginProvider:
                 try:
                     self._provider_cache = await self._sso.discover()
                 except Exception as exc:  # discovery is best-effort: no button
-                    logger.warning(
-                        "gateway: SSO provider discovery failed: %s", type(exc).__name__
-                    )
+                    logger.warning("gateway: SSO provider discovery failed: %s", type(exc).__name__)
                     self._provider_cache = None
                 self._provider_probed = True
         return self._provider_cache
@@ -374,9 +368,7 @@ def _parse_login_providers(page: str, default_db: str) -> OAuthProviderInfo | No
         href = html.unescape(raw_href)
         parts = urlsplit(href)
         query = dict(parse_qsl(parts.query))
-        if "client_id" not in query or "auth_oauth/signin" not in query.get(
-            "redirect_uri", ""
-        ):
+        if "client_id" not in query or "auth_oauth/signin" not in query.get("redirect_uri", ""):
             continue
         try:
             state: Any = json.loads(query.get("state", ""))
