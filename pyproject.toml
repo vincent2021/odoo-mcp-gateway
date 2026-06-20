@@ -1,0 +1,81 @@
+# Copyright (c) 2026 Vincent Mucchielli
+# SPDX-License-Identifier: BUSL-1.1
+#
+# odoo-mcp-sso — the Microsoft-SSO / team-gateway add-on for odoo-mcp-guard.
+# Separately licensed under the Business Source License 1.1 (see LICENSE): this
+# is NOT part of the MIT core. It consumes the odoo-mcp-guard core UNMODIFIED
+# via the public LoginProvider seam; the core depends on it only OPTIONALLY
+# (serve.py, wrapped in try/except ImportError). For local development the core
+# is resolved via a path source to ../odoo-mcp-core.
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "odoo-mcp-sso"
+version = "1.0.0b1"
+description = "Microsoft-SSO / team-gateway add-on for odoo-mcp-guard: per-user Odoo identity via OAuth 2.1 + browser login. Consumes the MIT core unmodified. Business Source License 1.1."
+readme = "README.md"
+license = { text = "BUSL-1.1" }
+requires-python = ">=3.11"
+authors = [{ name = "Vincent Mucchielli" }]
+keywords = ["odoo", "mcp", "sso", "oauth", "microsoft", "gateway"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+]
+dependencies = [
+    "odoo-mcp-guard",
+    "httpx>=0.27",
+    "pydantic>=2.7",
+    "starlette>=0.37",
+]
+
+[project.urls]
+Homepage = "https://github.com/odoo-mcp-guard/odoo-mcp-sso"
+
+[tool.uv.sources]
+odoo-mcp-guard = { path = "../odoo-mcp-core", editable = true }
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["odoo_mcp_sso"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["odoo_mcp_sso", "tests"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["odoo_mcp_sso"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "SIM", "RUF", "S"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106", "S107", "S108"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+show_error_codes = true
+files = ["odoo_mcp_sso", "tests"]
+mypy_path = "tests"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-q --strict-markers"
