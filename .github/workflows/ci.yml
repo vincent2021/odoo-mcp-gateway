@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# This add-on consumes the MIT core via the ../odoo-mcp-core path source, so CI
+# checks out the core repo as a sibling. core is PRIVATE → needs a PAT.
+# Add a repo secret CI_PAT (fine-grained PAT, read access to vincent2021/odoo-mcp-core).
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: odoo-mcp-gateway
+      - name: Checkout core (path dependency)
+        uses: actions/checkout@v4
+        with:
+          repository: vincent2021/odoo-mcp-core
+          path: odoo-mcp-core
+          token: ${{ secrets.CI_PAT }}
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - name: Sync
+        working-directory: odoo-mcp-gateway
+        run: uv sync --all-extras
+      - name: Ruff format
+        working-directory: odoo-mcp-gateway
+        run: uv run ruff format --check .
+      - name: Ruff lint
+        working-directory: odoo-mcp-gateway
+        run: uv run ruff check .
+      - name: Mypy (strict)
+        working-directory: odoo-mcp-gateway
+        run: uv run mypy
+      - name: Tests
+        working-directory: odoo-mcp-gateway
+        run: uv run pytest
