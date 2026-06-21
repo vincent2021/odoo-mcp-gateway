@@ -32,8 +32,8 @@ from _fixtures import (
     register,
     stub_validator,
 )
-from odoo_mcp_sso import microsoft as ms_mod
-from odoo_mcp_sso.microsoft import (
+from odoo_mcp_gateway import microsoft as ms_mod
+from odoo_mcp_gateway.microsoft import (
     MicrosoftLoginProvider,
     MicrosoftSso,
     OAuthProviderInfo,

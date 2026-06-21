@@ -486,6 +486,41 @@ wheels = [
 ]
 
 [[package]]
+name = "odoo-mcp-gateway"
+version = "1.0.0b1"
+source = { editable = "." }
+dependencies = [
+    { name = "httpx" },
+    { name = "odoo-mcp-guard" },
+    { name = "pydantic" },
+    { name = "starlette" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.27" },
+    { name = "odoo-mcp-guard", editable = "../odoo-mcp-core" },
+    { name = "pydantic", specifier = ">=2.7" },
+    { name = "starlette", specifier = ">=0.37" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=1.13" },
+    { name = "pytest", specifier = ">=8.3" },
+    { name = "pytest-asyncio", specifier = ">=0.24" },
+    { name = "ruff", specifier = ">=0.8" },
+]
+
+[[package]]
 name = "odoo-mcp-guard"
 version = "1.0.0b1"
 source = { editable = "../odoo-mcp-core" }
@@ -520,41 +555,6 @@ dev = [
     { name = "pytest-cov", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.8" },
     { name = "types-pyyaml", specifier = ">=6.0" },
-]
-
-[[package]]
-name = "odoo-mcp-sso"
-version = "1.0.0b1"
-source = { editable = "." }
-dependencies = [
-    { name = "httpx" },
-    { name = "odoo-mcp-guard" },
-    { name = "pydantic" },
-    { name = "starlette" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "httpx", specifier = ">=0.27" },
-    { name = "odoo-mcp-guard", editable = "../odoo-mcp-core" },
-    { name = "pydantic", specifier = ">=2.7" },
-    { name = "starlette", specifier = ">=0.37" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "mypy", specifier = ">=1.13" },
-    { name = "pytest", specifier = ">=8.3" },
-    { name = "pytest-asyncio", specifier = ">=0.24" },
-    { name = "ruff", specifier = ">=0.8" },
 ]
 
 [[package]]

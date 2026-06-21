@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Vincent Mucchielli
 # SPDX-License-Identifier: BUSL-1.1
 #
-# odoo-mcp-sso — the Microsoft-SSO / team-gateway add-on for odoo-mcp-guard.
+# odoo-mcp-gateway — the Microsoft-SSO / team-gateway add-on for odoo-mcp-guard.
 # Separately licensed under the Business Source License 1.1 (see LICENSE): this
 # is NOT part of the MIT core. It consumes the odoo-mcp-guard core UNMODIFIED
 # via the public LoginProvider seam; the core depends on it only OPTIONALLY
@@ -12,7 +12,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "odoo-mcp-sso"
+name = "odoo-mcp-gateway"
 version = "1.0.0b1"
 description = "Microsoft-SSO / team-gateway add-on for odoo-mcp-guard: per-user Odoo identity via OAuth 2.1 + browser login. Consumes the MIT core unmodified. Business Source License 1.1."
 readme = "README.md"
@@ -36,7 +36,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/odoo-mcp-guard/odoo-mcp-sso"
+Homepage = "https://github.com/vincent2021/odoo-mcp-gateway"
 
 [tool.uv.sources]
 odoo-mcp-guard = { path = "../odoo-mcp-core", editable = true }
@@ -50,15 +50,15 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["odoo_mcp_sso"]
+packages = ["odoo_mcp_gateway"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-src = ["odoo_mcp_sso", "tests"]
+src = ["odoo_mcp_gateway", "tests"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["odoo_mcp_sso"]
+known-first-party = ["odoo_mcp_gateway"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "SIM", "RUF", "S"]
@@ -72,7 +72,7 @@ python_version = "3.11"
 strict = true
 warn_unreachable = true
 show_error_codes = true
-files = ["odoo_mcp_sso", "tests"]
+files = ["odoo_mcp_gateway", "tests"]
 mypy_path = "tests"
 
 [tool.pytest.ini_options]
