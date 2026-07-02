@@ -150,6 +150,22 @@ class MintingKeyProvider:
             "detail": "bootstrap module reachable; service principal + module secret accepted",
         }
 
+    async def list_audit(self, since_id: int = 0, limit: int = 200) -> list[dict[str, Any]]:
+        """The module's provisioning-audit rows (mint/revoke/refused) since ``since_id``, for the
+        console to mirror. Read-only; never returns a secret."""
+        client = await self._conn()
+        result = await client.call(
+            REGISTRY_MODEL,
+            "list_provisioning_audit",
+            [],
+            {
+                "module_secret": self._auth_token("list_provisioning_audit", 0),
+                "since_id": since_id,
+                "limit": limit,
+            },
+        )
+        return list(result) if isinstance(result, list) else []
+
     async def list_meta(self, uid: int) -> list[dict[str, Any]]:
         """Metadata (never the secret) for the user's keys, to reconcile / drive rotation."""
         client = await self._conn()

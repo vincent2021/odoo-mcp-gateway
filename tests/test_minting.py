@@ -39,6 +39,7 @@ class _MintClient(FakeClient):
         self.connects = 0
         self.revoke_result: Any = True
         self.meta_result: Any = [{"id": 5, "name": "mcp-guard", "scope": "rpc"}]
+        self.audit_result: Any = [{"id": 1, "event": "mint", "target_login": "bob"}]
 
     async def connect(self) -> None:
         self.connects += 1
@@ -59,6 +60,8 @@ class _MintClient(FakeClient):
             return self.revoke_result
         if method == "list_user_apikey_meta":
             return self.meta_result
+        if method == "list_provisioning_audit":
+            return self.audit_result
         return None
 
     def calls(self, method: str) -> list[tuple[str, list[Any] | None, dict[str, Any] | None]]:
@@ -174,6 +177,17 @@ async def test_mint_error_when_module_returns_no_key() -> None:
     provider = _provider(_MintClient(keys=[""]))
     with pytest.raises(MintError):
         await provider.get_key(42)
+
+
+async def test_list_audit_pulls_rows_with_bound_token() -> None:
+    c = _MintClient()
+    provider = _provider(c)
+    rows = await provider.list_audit(since_id=3, limit=50)
+    assert rows == [{"id": 1, "event": "mint", "target_login": "bob"}]
+    method, args, kwargs = c.calls("list_provisioning_audit")[0]
+    assert args == []
+    assert kwargs["since_id"] == 3 and kwargs["limit"] == 50
+    assert _verify_token(kwargs["module_secret"], "S3CR3T", 0, "list_provisioning_audit")
 
 
 async def test_check_ok_and_uses_bound_token() -> None:
