@@ -191,21 +191,36 @@ def _env_flag(name: str) -> bool:
 _LOOPBACK_HOSTS = frozenset({"localhost", "127.0.0.1", "::1", "[::1]"})
 
 
+def _is_local_host(host: str | None) -> bool:
+    """A host whose traffic never crosses the public internet — loopback, mDNS/OrbStack
+    (.local / .orb.local) or an RFC-1918 private IPv4."""
+    h = (host or "").lower()
+    if h in _LOOPBACK_HOSTS:
+        return True
+    if h.endswith(".orb.local") or h.endswith(".local"):
+        return True
+    parts = h.split(".")
+    if len(parts) == 4 and all(p.isdigit() for p in parts):
+        a, b = int(parts[0]), int(parts[1])
+        return a == 10 or (a == 192 and b == 168) or (a == 172 and 16 <= b <= 31)
+    return False
+
+
 def is_secure_mint_url(url: str) -> bool:
     """True if the service→Odoo channel is safe to send the module secret over.
 
     The mint call carries the module secret and returns per-user keys in clear, so a
-    plaintext ``http://`` channel to a non-loopback host would leak the whole impersonation
-    trust chain to a passive observer (Rule 1 #7/#9). HTTPS is required; loopback ``http``
-    is allowed for local development only.
+    plaintext ``http://`` channel to a PUBLIC host would leak the whole impersonation trust
+    chain to a passive observer (Rule 1 #7/#9). HTTPS is required for public hosts; plaintext
+    ``http`` is allowed only to a local/private host (loopback, .orb.local/.local, RFC-1918)
+    for local development.
     """
     from urllib.parse import urlparse
 
     parsed = urlparse(url.strip())
     if parsed.scheme == "https":
         return True
-    host = (parsed.hostname or "").lower()
-    return parsed.scheme == "http" and host in _LOOPBACK_HOSTS
+    return parsed.scheme == "http" and _is_local_host(parsed.hostname)
 
 
 def make_key_provider(profile: ProfileConfig) -> MintingKeyProvider | None:

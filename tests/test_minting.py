@@ -214,8 +214,12 @@ def test_make_key_provider_disabled_when_incomplete(monkeypatch: pytest.MonkeyPa
         ("http://localhost:8069", True),
         ("http://127.0.0.1:8069", True),
         ("http://[::1]:8069", True),
-        ("http://odoo.example.com", False),  # plaintext to a remote host — leaks the secret
-        ("http://192.168.1.20:8069", False),
+        ("http://odoo.odoo18.orb.local", True),  # OrbStack local — never leaves the host
+        ("http://erp.local", True),  # mDNS local
+        ("http://192.168.1.20:8069", True),  # RFC-1918 private LAN (dev)
+        ("http://10.0.0.5:8069", True),
+        ("http://odoo.example.com", False),  # plaintext to a PUBLIC host — leaks the secret
+        ("http://172.32.0.1:8069", False),  # 172.32 is public (outside 172.16-31)
     ],
 )
 def test_is_secure_mint_url(url: str, secure: bool) -> None:
