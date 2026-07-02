@@ -248,6 +248,18 @@ class FakeClient:
         self.records.setdefault(model, []).append({"id": new_id, **values})
         return new_id
 
+    async def create_many(
+        self,
+        model: str,
+        vals_list: list[dict[str, Any]],
+        *,
+        context: dict[str, Any] | None = None,
+    ) -> list[int]:
+        ids: list[int] = []
+        for values in vals_list:
+            ids.append(await self.create(model, values, context=context))
+        return ids
+
     async def write(
         self,
         model: str,

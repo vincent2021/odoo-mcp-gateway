@@ -288,6 +288,9 @@ class MicrosoftLoginProvider:
         if result is None:
             return HTMLResponse(_error_page(_MS_NEUTRAL_ERROR), status_code=401)
         session_cookie, identity = result
+        # The SSO exchange proves identity; the per-user runtime credential (the SSO web
+        # session, or — in impersonation-minting mode — a minted sessionless key) is chosen
+        # uniformly downstream by the core's per-user client seam, for every login method.
         session = UserSession(
             identity=identity,
             credential=SecretStr(session_cookie),
@@ -498,11 +501,12 @@ def make_microsoft_sso(profile: ProfileConfig) -> MicrosoftSso:
 def make_microsoft_provider(profile: ProfileConfig) -> MicrosoftLoginProvider | None:
     """Build a ready Microsoft login provider for one profile, or ``None``.
 
-    Returns a bound-ready :class:`MicrosoftLoginProvider` wrapping the
-    production discovery/exchange callables. (Discovery is lazy — the button
-    only appears if a provider is actually discoverable at request time — so
-    this always returns a provider; the ``| None`` return keeps the seam open
-    for a future "SSO disabled by config" short-circuit.)
+    Returns a bound-ready :class:`MicrosoftLoginProvider` wrapping the production
+    discovery/exchange callables. (Discovery is lazy — the button only appears if a
+    provider is actually discoverable at request time — so this always returns a provider;
+    the ``| None`` return keeps the seam open for a future "SSO disabled by config"
+    short-circuit.) Impersonation-minting is applied uniformly by the core's per-user key
+    seam (``make_key_provider``), not here, so it covers every login method.
 
     Example:
         >>> # providers = [p for p in (make_microsoft_provider(profile),) if p]

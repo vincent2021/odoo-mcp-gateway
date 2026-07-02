@@ -261,6 +261,8 @@ async def test_full_sso_flow_yields_odoo_session(
         assert SESSION_COOKIE_SENTINEL not in line
 
 
+
+
 async def test_sso_complete_uses_metarefresh_not_blocked_302(
     client: httpx.AsyncClient,
 ) -> None:
