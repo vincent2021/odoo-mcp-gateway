@@ -62,6 +62,8 @@ class _MintClient(FakeClient):
             return self.meta_result
         if method == "list_provisioning_audit":
             return self.audit_result
+        if method == "register_gateway_info":
+            return True
         return None
 
     def calls(self, method: str) -> list[tuple[str, list[Any] | None, dict[str, Any] | None]]:
@@ -179,13 +181,23 @@ async def test_mint_error_when_module_returns_no_key() -> None:
         await provider.get_key(42)
 
 
+async def test_register_gateway_info_bound_token() -> None:
+    c = _MintClient()
+    provider = _provider(c)
+    assert await provider.register_gateway_info("https://x.mcp.cledoo.com/mcp", "cledoo") is True
+    _m, _a, kwargs = c.calls("register_gateway_info")[0]
+    assert kwargs["gateway_url"] == "https://x.mcp.cledoo.com/mcp"
+    assert kwargs["deployment_kind"] == "cledoo"
+    assert _verify_token(kwargs["module_secret"], "S3CR3T", 0, "register_gateway_info")
+
+
 async def test_list_audit_pulls_rows_with_bound_token() -> None:
     c = _MintClient()
     provider = _provider(c)
     rows = await provider.list_audit(since_id=3, limit=50)
     assert rows == [{"id": 1, "event": "mint", "target_login": "bob"}]
-    method, args, kwargs = c.calls("list_provisioning_audit")[0]
-    assert args == []
+    _m, _a, kwargs = c.calls("list_provisioning_audit")[0]
+    assert _a == []
     assert kwargs["since_id"] == 3 and kwargs["limit"] == 50
     assert _verify_token(kwargs["module_secret"], "S3CR3T", 0, "list_provisioning_audit")
 

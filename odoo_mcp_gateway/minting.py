@@ -150,6 +150,24 @@ class MintingKeyProvider:
             "detail": "bootstrap module reachable; service principal + module secret accepted",
         }
 
+    async def register_gateway_info(
+        self, gateway_url: str, deployment_kind: str = "cledoo"
+    ) -> bool:
+        """Tell the module where its MCP gateway lives (Q1) — informational, for the Odoo admin.
+        Best-effort; a failure never blocks minting."""
+        client = await self._conn()
+        result = await client.call(
+            REGISTRY_MODEL,
+            "register_gateway_info",
+            [],
+            {
+                "module_secret": self._auth_token("register_gateway_info", 0),
+                "gateway_url": gateway_url,
+                "deployment_kind": deployment_kind,
+            },
+        )
+        return bool(result)
+
     async def list_audit(self, since_id: int = 0, limit: int = 200) -> list[dict[str, Any]]:
         """The module's provisioning-audit rows (mint/revoke/refused) since ``since_id``, for the
         console to mirror. Read-only; never returns a secret."""
