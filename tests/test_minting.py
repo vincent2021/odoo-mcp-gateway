@@ -176,6 +176,27 @@ async def test_mint_error_when_module_returns_no_key() -> None:
         await provider.get_key(42)
 
 
+async def test_check_ok_and_uses_bound_token() -> None:
+    c = _MintClient()
+    provider = _provider(c)
+    r = await provider.check()
+    assert r["ok"] is True
+    m = c.calls("is_mcp_authorized")[0]
+    assert m[1] == []
+    assert _verify_token(m[2]["module_secret"], "S3CR3T", 0, "is_mcp_authorized")
+
+
+async def test_check_reports_failure_without_raising() -> None:
+    class _Boom(_MintClient):
+        async def call(self, *a: Any, **k: Any) -> Any:
+            raise RuntimeError("model mcp_guard.allowed_user does not exist")
+
+    provider = _provider(_Boom())
+    r = await provider.check()
+    assert r["ok"] is False
+    assert "does not exist" in r["detail"]
+
+
 async def test_revoke_and_list_pass_uid_and_bound_token() -> None:
     c = _MintClient()
     provider = _provider(c)

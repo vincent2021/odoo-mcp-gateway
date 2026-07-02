@@ -127,6 +127,29 @@ class MintingKeyProvider:
         self.forget(uid)
         return bool(result)
 
+    async def check(self) -> dict[str, Any]:
+        """Non-destructively verify the impersonation trust chain (Health/Test MCP).
+
+        Connects as the service principal and calls the module's gated, READ-ONLY
+        ``is_mcp_authorized`` (uid 0 — never mints). Success proves: the bootstrap module is
+        installed, the service principal is in its group, and the module secret / token is
+        accepted. Returns ``{ok, detail}`` — the error is short and carries no secret."""
+        try:
+            client = await self._conn()
+            await client.call(
+                REGISTRY_MODEL,
+                "is_mcp_authorized",
+                [],
+                {"target_uid": 0, "module_secret": self._auth_token("is_mcp_authorized", 0)},
+            )
+        except Exception as exc:
+            detail = str(exc).splitlines()[0][:200] if str(exc) else exc.__class__.__name__
+            return {"ok": False, "detail": detail}
+        return {
+            "ok": True,
+            "detail": "bootstrap module reachable; service principal + module secret accepted",
+        }
+
     async def list_meta(self, uid: int) -> list[dict[str, Any]]:
         """Metadata (never the secret) for the user's keys, to reconcile / drive rotation."""
         client = await self._conn()
